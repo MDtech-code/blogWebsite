@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 MIDDLEWARE = [
@@ -174,3 +175,8 @@ SIMPLE_JWT = {
 
     #! ... any other settings you want to override
 }
+
+# AUTHENTICATION_BACKENDS = [
+#     'app.accounts.backends.EmailVerificationBackend',
+#     # 'django.contrib.auth.backends.ModelBackend',  # Keep the default backend as well
+# ]

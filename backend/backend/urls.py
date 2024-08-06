@@ -19,9 +19,10 @@ from django.urls import path,include
 from django.conf import settings
 from django.conf.urls.static import static
 from app.accounts import views
-
+from rest_framework_simplejwt.views import TokenRefreshView
 urlpatterns = [
     path('csrf_token/',views.CsrfTokenViews.as_view(),name='csrfToken'),
+    path('token/refresh/',TokenRefreshView.as_view(), name='token_refresh'),
     path('admin/', admin.site.urls),
     path('user/',include('app.accounts.urls')),
 ]
