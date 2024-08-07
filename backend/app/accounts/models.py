@@ -29,5 +29,5 @@ class Profile(models.Model):
     instagram_url=models.CharField(max_length=100,null=True, blank=True)
 
     def __str__(self):
-        return self.user.username
+        return self.user.username 
 

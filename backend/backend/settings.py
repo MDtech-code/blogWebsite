@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'app.accounts.apps.AccountsConfig',
+    'app.blog.apps.BlogConfig',
     
     'rest_framework',
     'rest_framework_simplejwt',
@@ -53,6 +54,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'app.accounts.middleware.JWTErrorHandlingMiddleware',
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -168,7 +170,7 @@ REST_FRAMEWORK = {
     ),
 }
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
@@ -176,7 +178,4 @@ SIMPLE_JWT = {
     #! ... any other settings you want to override
 }
 
-# AUTHENTICATION_BACKENDS = [
-#     'app.accounts.backends.EmailVerificationBackend',
-#     # 'django.contrib.auth.backends.ModelBackend',  # Keep the default backend as well
-# ]
+
