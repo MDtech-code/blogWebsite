@@ -7,6 +7,9 @@ from rest_framework.response import Response
 # Import status module from DRF for HTTP status codes
 from rest_framework import status  
 
+import logging
+
+logger = logging.getLogger(__name__)
 # Middleware class to handle JWT-related errors
 class JWTErrorHandlingMiddleware:
     
@@ -22,6 +25,7 @@ class JWTErrorHandlingMiddleware:
     def process_exception(self, request, exception):
         # Method to handle exceptions that occur during request processing
         if isinstance(exception, (AuthenticationFailed, TokenError)):
+            logger.error(f"JWT Error: {exception}")  # Log the error for debugging
             # Check if the exception is of type AuthenticationFailed or TokenError
             return Response(
                 {'detail': 'Token has expired or is invalid'},  # Return a response with error detail

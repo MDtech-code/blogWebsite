@@ -1,13 +1,13 @@
 from django.db import models
 from app.accounts.models import CustomUser
 from app.blog.utils.category_predict import predict_category
-
+from django.utils.text import slugify
 # Create your models here.
 
 
 
 
-    
+#! Category model here
 class Category(models.Model):
     name=models.CharField(max_length=100)
     meta_title = models.CharField(max_length=100, null=True, blank=True) 
@@ -16,8 +16,16 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        if not self.meta_title:
+            self.meta_title = self.name
+        super().save(*args, **kwargs)
+    
+#! Tag model here    
 class Tag(models.Model):
-    name=models.CharField(max_length=50)
+    name=models.CharField(max_length=100)
     def __str__(self):
         return self.name
 
@@ -41,12 +49,20 @@ class Post(models.Model):
 
     def total_likes(self):
         return self.likes.count()
+    def total_shares(self):
+        return self.shares.count()
+    def total_comments(self):
+        return self.comments.count()
+    def total_bookmarks(self):
+        return self.bookmarks.count()
     
     def save(self, *args, **kwargs):
-        if not self.category:
-            category_name = predict_category(self.content)
-            self.category = Category.objects.get_or_create(name=category_name)[0]
-        super().save(*args, **kwargs)
+             category_name = predict_category(self.content)
+             self.category = Category.objects.get_or_create(name=category_name)[0]
+             self.slug = slugify(self.title)
+             self.meta_title = self.title
+
+             super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title
@@ -62,8 +78,8 @@ class Like(models.Model):
 
 
 class Comment(models.Model):
-    author=models.ForeignKey(CustomUser,on_delete=models.CASCADE, related_name='conments')
-    post=models.ForeignKey(Post,on_delete=models.CASCADE, related_name='conments')
+    author=models.ForeignKey(CustomUser,on_delete=models.CASCADE, related_name='comments')
+    post=models.ForeignKey(Post,on_delete=models.CASCADE, related_name='comments')
     content=models.TextField()
     created_at=models.DateTimeField(auto_now_add=True,verbose_name='post_create_date')
     updated_at=models.DateTimeField(auto_now=True,verbose_name='post_update_date')
