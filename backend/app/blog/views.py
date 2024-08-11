@@ -6,11 +6,11 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import PostSerializer,PublishedPostSerializer,AllPostByUserSerializer,LikeSerializer,CommentSerializer
+from .serializers import PostSerializer,PublishedPostSerializer,AllPostByUserSerializer,LikeSerializer,CommentSerializer,BookmarkSerializer
 from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated
 #! modles
-from .models import Post,Like,Comment,Share
+from .models import Post,Like,Comment,Share,Bookmark
 
 #! import related to date and time
 from django.utils import timezone
@@ -173,3 +173,35 @@ class ShareView(APIView):
         share_url = generate_share_url(platform, post)
         Share.objects.create(user=request.user, post=post, platform=platform)
         return Response({'response': 'Post shared successfully','share_url': share_url }, status=status.HTTP_200_OK)
+
+
+
+
+
+#! bookmark modle CURD
+
+#! create bookmark view 
+class BookmarkCreateView(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request,post_id):
+        post=get_object_or_404(Post,id=post_id)
+        
+        if Bookmark.objects.filter(user=request.user, post=post).exists():
+                return Response({'response': 'You have already bookmark this post'}, status=status.HTTP_400_BAD_REQUEST)
+        data={
+            'user':request.user.id,
+            'post':post.id
+        }
+        serializer=BookmarkSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'response':'post bookmark sucessfully'},status=status.HTTP_200_OK)
+        else:
+            return Response({'response':'post bookmark fail','errors':serializer.errors},status=status.HTTP_400_BAD_REQUEST)
+#! delete like view
+class BookmarkDeleteView(APIView):
+    permission_classes=[IsAuthenticated]
+    def delete(self,request,post_id):
+        bookmark=get_object_or_404(Bookmark,user=request.user,post_id=post_id)
+        bookmark.delete()
+        return Response({'response': 'Bookmark deleted successfully'}, status=status.HTTP_200_OK)

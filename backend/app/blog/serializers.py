@@ -106,3 +106,8 @@ class ShareSerializer(serializers.ModelSerializer):
     class Meta:
         model=Share
         fields='__all__'
+#! bookmark model serializer..
+class BookmarkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Bookmark
+        fields='__all__'

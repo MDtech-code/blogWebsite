@@ -16,4 +16,7 @@ urlpatterns = [
 
     path('post/<int:post_id>/share-options/', views.ShareOptionsView.as_view(), name='share-options'),
     path('post/<int:post_id>/share/', views.ShareView.as_view(), name='share'),
+    
+    path('post/Bookmark/<int:post_id>/',views.BookmarkCreateView.as_view(),name='create-Bookmark'),
+    path('post/un-Bookmark/<int:post_id>/',views.BookmarkDeleteView.as_view(),name='Bookmark-delete'),
 ]
