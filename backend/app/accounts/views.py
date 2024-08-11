@@ -32,33 +32,20 @@ import datetime
 
 #! View here
 
-
-#! This view helps to send CSRF token to frontend
-class CsrfTokenViews(APIView):
-    permission_classes = [AllowAny]
-
-    def get(self, request):
-        try:
-            csrf_token = get_token(request)
-            response = Response({'csrfToken': csrf_token})
-            response.set_cookie('csrftoken', csrf_token, max_age=31449600, secure=True, httponly=True, samesite='None')
-            return response
-        except Exception as e:
-            return Response({'responseErrorMessage': str(e)}, status=500)
-
-
 #! SignupViews is a class-based view that handles user registration.
 class SignupViews(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        data = request.data
-
-        serializers = CustomUserSerializers(data=data)
-        if serializers.is_valid():
-            serializers.save()
-            return Response({'Response': 'user created successfully'}, status=status.HTTP_201_CREATED)
-        return Response({'ResponseError': serializers.errors}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            serializers = CustomUserSerializers(data=request.data)
+            if serializers.is_valid():
+                serializers.save()
+                return Response({'Response': 'user created successfully'}, status=status.HTTP_201_CREATED)
+            return Response({'ResponseError': serializers.errors}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
 
 
 #! LoginViews is a class-based view that handles user login.
@@ -66,24 +53,24 @@ class LoginViews(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        data = request.data
-        serializers = LoginSerializers(data=data)
-        if serializers.is_valid():
-            user = serializers.validated_data['user']
-            login(request, user)
-
-
-            refresh = RefreshToken.for_user(user)
-            print('refreshToken', str(refresh))
-            response = Response({
-                'access': str(refresh.access_token),
-                'loginuser': user.username,
-                'response': 'Login successful',
-            }, status=status.HTTP_200_OK)
-            response.set_cookie('refresh_token', str(refresh), httponly=True, samesite='None')
-            return response
-
-        return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            serializers = LoginSerializers(data=request.data)
+            if serializers.is_valid():
+                user = serializers.validated_data['user']
+                login(request, user)
+                refresh = RefreshToken.for_user(user)
+                print('refreshToken', str(refresh))
+                response = Response({
+                    'access': str(refresh.access_token),
+                    'loginuser': user.username,
+                    'response': 'Login successful',
+                }, status=status.HTTP_200_OK)
+                response.set_cookie('refresh_token', str(refresh), httponly=True, samesite='None')
+                return response
+            return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
 
 
 #! LogoutViews is a class-based view that handles user logout.
@@ -226,7 +213,7 @@ class ResetPasswordView(APIView):
             return Response({"response": "Invalid user ID"}, status=status.HTTP_403_FORBIDDEN)
 
 
-
+#! Define a view to read user profile 
 class ProfileRetrieveView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -235,22 +222,30 @@ class ProfileRetrieveView(APIView):
             profile = Profile.objects.get(user=request.user)
         except Profile.DoesNotExist:
             return Response({'error': 'Profile not found'}, status=status.HTTP_404_NOT_FOUND)
-
+        try:
+            pass
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         serializer = ProfileSerializers(profile)
         return Response(serializer.data, status=status.HTTP_200_OK)
+#! Define a view to create user profile
 class ProfileCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-         # Check if the profile already exists for the logged-in user
-        if Profile.objects.filter(user=request.user).exists():
-            return Response({'error': 'Profile already exists.'}, status=status.HTTP_400_BAD_REQUEST)
-        serializer = ProfileSerializers(data=request.data, context={'request': request})
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        try:
+             # Check if the profile already exists for the logged-in user
+            if Profile.objects.filter(user=request.user).exists():
+                return Response({'error': 'Profile already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+            serializer = ProfileSerializers(data=request.data, context={'request': request})
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+           
+#! Define a view to update user profile
 class ProfileUpdateView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -260,8 +255,12 @@ class ProfileUpdateView(APIView):
         except Profile.DoesNotExist:
             return Response({'error': 'Profile not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = ProfileSerializers(profile, data=request.data, context={'request': request})
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            serializer = ProfileSerializers(profile, data=request.data, context={'request': request})
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+                 return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        

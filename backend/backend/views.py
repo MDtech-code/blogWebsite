@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 
-
+#! Define a view to handle legacy csrf token 
 class CsrfTokenViews(APIView):
     permission_classes = [AllowAny]
 
