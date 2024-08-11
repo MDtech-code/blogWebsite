@@ -1,6 +1,7 @@
 from .models import Category,Tag,Post,Like,Comment,Share,Bookmark
 from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
+from app.blog.utils.category_predict import predict_category
 
 
 #! Category  Serializer here
@@ -19,9 +20,6 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 #! Post Serializer here
-
-from rest_framework import serializers
-from .models import Post, Tag
 
 class PostSerializer(serializers.ModelSerializer):
     tags = serializers.CharField()
@@ -45,7 +43,12 @@ class PostSerializer(serializers.ModelSerializer):
         # Split the tags string into a list of individual tags
         tags_list = [tag.strip('#') for tag in tags_data.split() if tag]
 
-        post = Post.objects.create(author=user, **validated_data)  # Create the post instance
+        # Predict the category using the AI model based on the content
+        content = validated_data.get('content', '')
+        category_name = predict_category(content)
+        category, created = Category.objects.get_or_create(name=category_name)
+
+        post = Post.objects.create(author=user,category=category, **validated_data)  # Create the post instance
 
         # Add tags to the post
         for tag_name in tags_list:
@@ -67,6 +70,11 @@ class PostSerializer(serializers.ModelSerializer):
 
      # Set the tags for the instance
      instance.tags.set(tag_instances)
+     # Predict the category using the AI model based on the updated content
+     content = validated_data.get('content', instance.content)  # Use existing content if not updated
+     category_name = predict_category(content)
+     category, created = Category.objects.get_or_create(name=category_name)
+     instance.category = category
 
     # Update other fields
      for attr, value in validated_data.items():

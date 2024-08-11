@@ -1,6 +1,6 @@
 from django.db import models
 from app.accounts.models import CustomUser
-from app.blog.utils.category_predict import predict_category
+# from app.blog.utils.category_predict import predict_category
 from django.utils.text import slugify
 # Create your models here.
 
@@ -57,8 +57,8 @@ class Post(models.Model):
         return self.bookmarks.count()
     
     def save(self, *args, **kwargs):
-             category_name = predict_category(self.content)
-             self.category = Category.objects.get_or_create(name=category_name)[0]
+             #category_name = predict_category(self.content)
+             #self.category = Category.objects.get_or_create(name=category_name)[0]
              self.slug = slugify(self.title)
              self.meta_title = self.title
 
