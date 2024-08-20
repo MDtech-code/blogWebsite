@@ -175,17 +175,17 @@ class ProfileSerializers(serializers.ModelSerializer):
         user = request.user
         
         #! Create and save the Profile instance
-        #profile = Profile.objects.create(user=user, **validated_data)
-        profile = Profile(
-            user=user,
-            bio=validated_data.get('bio', ''),
-            image=validated_data.get('image', None),
-            gender=validated_data.get('gender', ''),
-            age=validated_data.get('age', 0),
-            number=validated_data.get('number', ''),
-            facebook_url=validated_data.get('facebook_url', ''),
-            instagram_url=validated_data.get('instagram_url', '')
-        )
+        profile = Profile.objects.create(user=user, **validated_data)
+        #profile = Profile(
+        #    user=user,
+        #    bio=validated_data.get('bio', ''),
+        #    image=validated_data.get('image', None),
+        #    gender=validated_data.get('gender', ''),
+        #    age=validated_data.get('age', 0),
+        #    number=validated_data.get('number', ''),
+        #    facebook_url=validated_data.get('facebook_url', ''),
+        #    instagram_url=validated_data.get('instagram_url', '')
+        #)
         profile.save()
         return profile
 

@@ -9,7 +9,7 @@ from app.blog.utils.category_predict import predict_category
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model=Category
-        fields=['id','name']
+        fields='__all__'
 
 #! Tag  Serializer here
 class TagSerializer(serializers.ModelSerializer):
@@ -57,7 +57,7 @@ class PostSerializer(serializers.ModelSerializer):
 
         return post
     def update(self, instance, validated_data):
-     tags_data = validated_data.pop('tags', '')  # Get the tag data from validated_data and remove it
+     tags_data = validated_data.pop('tags', None)  # Get the tag data from validated_data and remove it
 
      # Split the tags string into a list of individual tags
      tags_list = [tag.strip('#') for tag in tags_data.split() if tag]

@@ -1,6 +1,8 @@
 from django.urls import path
 from . import views
 urlpatterns = [
+    path('category/',views.CategoryReadView.as_view(),name='category'),
+    path('categories/<slug:category_slug>/posts/', views.PostsByCategoryView.as_view(), name='posts-by-category'),
     path('create-post/',views.CreatePostView.as_view(),name='CreatePost'),
     path('post/',views.ReadAllPostView.as_view(),name='read_all_posts'),
     path('post/<int:post_id>/publish/', views.PublishedPostView.as_view(), name='publish_post_api'),

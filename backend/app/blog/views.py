@@ -6,17 +6,27 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import PostSerializer,PublishedPostSerializer,AllPostByUserSerializer,LikeSerializer,CommentSerializer,BookmarkSerializer
+from .serializers import PostSerializer,PublishedPostSerializer,AllPostByUserSerializer,LikeSerializer,CommentSerializer,BookmarkSerializer,CategorySerializer
 from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated
 #! modles
-from .models import Post,Like,Comment,Share,Bookmark
+from .models import Post,Like,Comment,Share,Bookmark,Category
 
 #! import related to date and time
 from django.utils import timezone
 #! utils
 from app.blog.utils.share_link import generate_share_url
 
+#! readall category view here..
+class CategoryReadView(APIView):
+    permission_classes=[AllowAny]
+    def get(self,request):
+        try:
+            category=Category.objects.all()
+            serializer=CategorySerializer(category,many=True)
+            return Response({'response':serializer.data},status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 #! post model CURD view here....
 class CreatePostView(APIView):
@@ -56,6 +66,17 @@ class ReadUserAllPostView(APIView):
         except Exception as e:
              return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
+#! read post for specific categorey
+class PostsByCategoryView(APIView):
+    permission_classes=[AllowAny]
+    def get(self,request,category_slug):
+        try:
+             category = get_object_or_404(Category, slug=category_slug)
+             posts=Post.objects.filter(category=category).select_related('author','category').prefetch_related('tags')
+             serializer=PostSerializer(posts,many=True)
+             return Response(serializer.data,status=status.HTTP_200_OK)
+        except Exception as e :
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 #! published post by user
 class PublishedPostView(APIView):
