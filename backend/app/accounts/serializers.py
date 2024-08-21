@@ -121,11 +121,11 @@ class SimpleCustomUserSerializer(serializers.ModelSerializer):
         fields = ['first_name', 'email']
 
 class ProfileSerializers(serializers.ModelSerializer):
-    user = SimpleCustomUserSerializer()
+    user = SimpleCustomUserSerializer(read_only=True)
 
     class Meta:
         model = Profile
-        fields = ['id', 'bio', 'image', 'gender', 'age', 'number', 'facebook_url', 'instagram_url', 'user']
+        fields = ['id', 'bio', 'image', 'gender', 'age', 'number', 'facebook_url', 'instagram_url','user']
     #! validated data function
     def validate_bio(self, value):
         bio_validation_error = validation_bio(value)
@@ -171,6 +171,7 @@ class ProfileSerializers(serializers.ModelSerializer):
 
     def create(self, validated_data):
         # Access the current logged-in user
+        #user_data = validated_data.pop('user', None)
         request = self.context.get('request')
         user = request.user
         
